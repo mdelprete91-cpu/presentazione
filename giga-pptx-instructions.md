@@ -6,7 +6,7 @@
 pip install python-pptx --break-system-packages -q
 ```
 
-Template is already downloaded by the launcher bootstrap. Path: `/tmp/giga_template.pptx`
+Template path: `/tmp/giga_template.pptx` (downloaded by launcher bootstrap)
 
 ## Brand Rules
 
@@ -16,285 +16,251 @@ Primary blue `#277AFF` | Dark `#161616`/`#000000` | Headings: Manrope | Body: Op
 
 **ONLY replace `.text` on existing runs.** Never create shapes, resize boxes, add runs, or change fonts.
 
-```python
-# CORRECT
-para.runs[0].text = "New text"
-# WRONG
-# shape.text_frame.text = "..."
-```
-
 ## Core Principle: USE ALL 21 SLIDES
 
-Every deck uses all 21 template slides. Every slide gets populated with content. The only exceptions are Slide 14 (Title+Chart) and Slide 15 (Title+Image) which move after Thank You if unused.
+Every deck uses all 21 slides. Only Slide 14 (Chart) and Slide 15 (Image) move after Thank You if unused.
+
+## ⚠️ TEXT LENGTH IS CRITICAL
+
+**If text is too long, it WILL overflow and overlap other elements.** Always count characters before inserting. If your content exceeds the limit, SHORTEN IT. Never exceed the max shown in the template map below. When in doubt, be shorter.
 
 ---
 
 ## Content-Function Matching Engine
 
-Classify each content block by **communicative function**, then match to the best layout.
-
 ### The 8 Functions
 
 | Function | What it does | Signal words |
 |---|---|---|
-| **headline** | Big number or bold statement | "X%", "#1", "first ever", wow metric |
-| **structure** | Organizes, transitions | section breaks, "moving on" |
+| **headline** | Big number or bold statement | "X%", "#1", wow metric |
+| **structure** | Organizes, transitions | section breaks |
 | **explain** | Breaks down a concept | "pillars", "areas", "how it works" |
 | **prove** | Demonstrates with data | numbers, before/after, KPIs |
 | **sequence** | Progression through time | dates, phases, roadmap |
 | **narrate** | Structured story (what/give/get) | partnerships, proposals |
-| **show** | Visual impact, map, image | "see the map", visual evidence |
-| **relate** | People, partners, teams | "our partners", contacts |
+| **show** | Visual impact, map, image | visual evidence |
+| **relate** | People, partners, teams | contacts, logos |
 
 ### Layout Selection Matrix
 
 ```
-HEADLINE → how many numbers?
-  1 number + description     → Stats 1 Large (12) — 80pt stat
-  2 numbers with context     → Stats 2 Large (11)
-  3-6 numbers               → Stats 3+3 (10)
-  4 numbers + explanation    → Card 4-col Icons (9)
+HEADLINE →
+  1 number     → Stats 1 Large (12)
+  2 numbers    → Stats 2 Large (11)
+  3-6 numbers  → Stats 3+3 (10)
 
-STRUCTURE →
-  Section break              → Section Divider (4)
-  Overview of deck           → Agenda (1)
-
-EXPLAIN → how many items?
-  2 items (or 4 as 2x2)     → Card 2x2 (5)
-  3 items                   → Card 3-col (7)
-  4 items                   → Card 4-col (6) or Card 2x2 (5)
-  4 items + icons relevant  → Card 4-col Icons (9)
-
-PROVE →
-  1 hero metric + context    → Stats 1 Large (12)
-  2 "wow" metrics + context  → Stats 2 Large (11)
-  6 standalone metrics       → Stats 3+3 (10)
-  4 metrics with labels      → Card 4-col (6)
+EXPLAIN → by item count
+  4 items as 2x2 → Card 2x2 (5)
+  3 items        → Card 3-col (7)
+  4 items        → Card 4-col (6)
+  4 + icons      → Card 4-col Icons (9)
 
 SEQUENCE →
-  4 milestones              → Timeline 4 (15)
-  5 milestones              → Timeline 5 (16)
-  3-4 phases with detail    → Card 3-col (7) or Card 4-col (6)
+  4 steps → Timeline 4 (15)
+  5 steps → Timeline 5 (16)
 
-NARRATE → how much text?
-  Short (5 fields)          → Partnership Right (2) or Left (3)
-  Long (2 sections)         → Partner Left Long (17) or Right Long (18)
-
-SHOW →
-  Map / screenshot          → Full Image (8)
-  Title + image reference   → Title Image (14)
-
-RELATE →
-  Partner logos             → Partners (19)
-  Contacts + CTA            → Thank You (20)
+NARRATE →
+  Short (5 fields) → Partnership Right (2) or Left (3)
+  Long (2 sections) → Partner Long (17 or 18)
 ```
 
-### Key Rule: SAME LAYOUT CAN REPEAT
+### Key Rules
 
-Layouts CAN be used more than once when content genuinely fits. Prefer variety, but never sacrifice content fit for variety. Priority: (1) best layout for content, (2) avoid repeating the PREVIOUS slide if possible, (3) alternate dense/light naturally.
+- Layouts CAN repeat if content fits. Prefer variety but never sacrifice fit.
+- Avoid repeating the PREVIOUS slide layout if possible.
+- Map slide (8) is ALWAYS included.
 
-### Narrative Arc (21 slides)
+### Narrative Arc
 
 ```
-ACT 1: OPENING
-  0  Title
-  1  Agenda
-
-ACT 2: CONTEXT (narrate + show)
-  2  Partnership Right — the opportunity
-  3  Partnership Left — the model/partner
-  4  Section Divider — transition
-
-ACT 3: CORE (explain + prove + show)
-  5  Card 2x2 — 4 concepts
-  6  Card 4-col — 4 numbered items
-  7  Card 3-col — 3 items
-  8  Full Image / Map — visual anchor (always include)
-  9  Card 4-col Icons — 4 services/tools
-  10 Stats 3+3 — 6 metrics
-  11 Stats 2 Large — 2 headline numbers
-  12 Stats 1 Large — 1 hero metric
-
-ACT 4: FORWARD (sequence + narrate)
-  15 Timeline 4 — 4 milestones
-  16 Timeline 5 — 5 milestones
-  17 Partnership Left Long — deep dive
-  18 Partnership Right Long — deep dive
-
-ACT 5: CLOSING
-  19 Partners — logos
-  20 Thank You — contacts
-
-HIDDEN (after Thank You if unused):
-  13 Title + Chart
-  14 Title + Image
+0 Title → 1 Agenda → 2 PartnerRight → 3 PartnerLeft → 4 SectionDiv
+→ 5 Card2x2 → 6 Card4col → 7 Card3col → 8 Map → 9 Card4colIcons
+→ 10 Stats3x3 → 11 Stats2Large → 12 Stats1Large
+→ 15 Timeline4 → 16 Timeline5 → 17 PartnerLeftLong → 18 PartnerRightLong
+→ 19 Partners → 20 ThankYou
+Hidden: 13 Chart, 14 Image
 ```
 
 ---
 
-## Template Map
+## Template Map with Text Limits
+
+**MAX = absolute maximum characters. Do NOT exceed.**
 
 ### Slide 1: Title (white) — 4 shapes
 ```
-[0] P[0].R[0] title line 1 | Manrope 51pt | 8.96x1.50in
-[0] P[1].R[0] title line 2
-[1] P[0].R[0] subtitle | Manrope 17pt | 9.16x1.87in
-[2] FIXED footer   [3] IMAGE logos
+[0] P[0] title line 1 | 51pt | MAX 19 chars per line
+[0] P[1] title line 2 | 51pt | MAX 19 chars
+[1] P[0] subtitle     | 17pt | MAX 59 chars/line, up to 5 lines
+[2] FIXED   [3] IMAGE
 ```
+Example: "Djibouti School" / "Mapping" (not "Djibouti School Mapping AI-Powered Geolocation & Government Validation")
 
 ### Slide 2: Agenda (blue) — 12 shapes
 ```
-[8] "Agenda" | Manrope 51pt white | 3.85x3.72in
-[0] item 1 | 17pt white | 4.64in wide
-[1] item 2   [2] item 3   [3] item 4
-[4] item 5   [5] item 6
-[9] item 7   [10] item 8   [11] item 9  (set "" if unused)
-[6] FIXED footer   [7] IMAGE logo
+[8] "Agenda" | 51pt | MAX 8 chars
+[0]-[5] items 1-6   | 17pt | MAX 30 chars each
+[9]-[11] items 7-9   | 17pt | MAX 30 chars each (set "" if unused)
+[6] FIXED   [7] IMAGE
 ```
 
 ### Slide 3: Partnership Image Right (white) — 13 shapes
 ```
-[1] P[0] title line 1 | 21pt | 4.69x0.75in   [1] P[1] line 2
-[2] label   [3] body | 4.69x0.21in
-[4] label   [5] body
-[6] label   [7] body
-[8] label   [9] body
-[10] label  [11] body | 4.69x0.39in
-[0] IMAGE right   [12] IMAGE logo
+[1] P[0] title line 1 | 21pt | MAX 30 chars
+[1] P[1] title line 2 | 21pt | MAX 30 chars
+[2][4][6][8][10] labels | 13pt | MAX 15 chars (short: "What", "Location", etc.)
+[3][5][7][9] body       | 11pt | MAX 51 chars (ONE sentence only)
+[11] body (details)     | 11pt | MAX 51 chars
+[0] IMAGE   [12] IMAGE
 ```
 
-### Slide 4: Partnership Image Left (white) — 13 shapes — RESTRUCTURED
-Title is now [0]. Image moved to [12].
+### Slide 4: Partnership Image Left (white) — 13 shapes
+Title is [0] (not [1]). Image at [12].
 ```
-[0] P[0] title line 1 | 21pt | 4.69x0.75in   [0] P[1] line 2
-[2] label   [3] body | 4.69x0.21in
-[4] label   [5] body
-[6] label   [7] body
-[8] label   [9] body
-[10] label  [11] body | 4.69x0.43in
-[12] IMAGE left   [1] FIXED footer
+[0] P[0] title line 1 | 21pt | MAX 30 chars
+[0] P[1] title line 2 | 21pt | MAX 30 chars
+[2][4][6][8][10] labels | 13pt | MAX 15 chars
+[3][5][7][9] body       | 11pt | MAX 51 chars
+[11] body (details)     | 11pt | MAX 51 chars
+[12] IMAGE   [1] FIXED
 ```
 
 ### Slide 5: Section Divider (blue) — 3 shapes
 ```
-[2] section title | 51pt white | 8.96x2.89in
+[2] section title | 51pt | MAX 19 chars/line x 2 lines = 38 total
 ```
 
 ### Slide 6: Card 2x2 (white) — 19 shapes
 ```
-[0] title | 21pt | 8.96x0.38in
-[5] label [6] body | 3.97x0.93in    [9] label [10] body
-[13] label [14] body                 [17] label [18] body
-[1] IMAGE   [2] FIXED footer
+[0] title        | 21pt | MAX 58 chars
+[5][9][13][17] labels  | 18pt | MAX 25 chars
+[6][10][14][18] body   | 11pt | MAX 170 chars (4 lines, ~43 chars/line)
+[1] IMAGE   [2] FIXED
 ```
 
 ### Slide 7: Card 4-col (white) — 21 shapes
 ```
-[4] title | 28pt | 8.96x0.97in
-[9][10][11][12] numbers | 18pt #277AFF | 1.72x0.29in
-[17][18][19][20] subtitles | 13pt
-[13][14][15][16] body | 11pt | 1.72x1.04in
+[4] title              | 28pt | MAX 35 chars
+[9][10][11][12] numbers | 18pt | MAX 5 chars ("01", "83", "51%")
+[17][18][19][20] subtitles | 13pt | MAX 14 chars
+[13][14][15][16] body      | 11pt | MAX 72 chars (4 lines, ~18 chars/line)
 ```
 
 ### Slide 8: Card 3-col (white) — 17 shapes
 ```
-[4] title | 28pt | 8.96x0.97in
-[6][10][14] numbers | 18pt #277AFF | 2.47x0.29in
-[8][12][16] subtitles | 13pt
-[7][11][15] body | 11pt | 2.47x1.04in
+[4] title           | 28pt | MAX 35 chars
+[6][10][14] numbers | 18pt | MAX 5 chars
+[8][12][16] subtitles | 13pt | MAX 20 chars
+[7][11][15] body      | 11pt | MAX 108 chars (4 lines, ~27 chars/line)
 ```
 
-### Slide 9: Full Image / Map (white) — 6 shapes — ALWAYS INCLUDE
+### Slide 9: Full Image / Map (white) — 6 shapes ⭐ ALWAYS INCLUDE
 ```
-[4] title | 28pt | 8.96x0.97in
-[3] IMAGE map 8.96x2.98in — DO NOT TOUCH
-[5] IMAGE overlay — DO NOT TOUCH
+[4] title | 28pt | MAX 35 chars
+[3][5] IMAGE — DO NOT TOUCH
 ```
 
 ### Slide 10: Card 4-col + Icons (white) — 22 shapes
 ```
-[4] title | 28pt
-[14][15][16][17] subtitles | 13pt | 1.72x0.29in
-[10][11][12][13] body | 11pt | 1.72x1.04in
+[4] title              | 28pt | MAX 35 chars
+[14][15][16][17] subtitles | 13pt | MAX 14 chars
+[10][11][12][13] body      | 11pt | MAX 72 chars
 [18-21] IMAGE icons — DO NOT TOUCH
 ```
 
 ### Slide 11: Stats 3+3 (white) — 21 shapes
 ```
-[18] P[0] title line 1 | 28pt | 3.72x3.79in   [18] P[1] line 2
-Left:  [1] stat [2] label  [4] stat [5] label  [7] stat [8] label
-Right: [10] stat [11] label [13] stat [14] label [16] stat [17] label
-Stats: 51pt #277AFF 2.01x0.75in   Labels: 11pt 2.01x0.48in
+[18] P[0] title line 1 | 28pt | MAX 14 chars/line
+[18] P[1] title line 2 | 28pt | MAX 14 chars
+Stats [1][4][7][10][13][16]   | 51pt | MAX 4 chars ("61%", "2.2M", "#1")
+Labels [2][5][8][11][14][17]  | 11pt | MAX 44 chars (2 lines, ~22/line)
 ```
 
 ### Slide 12: Stats 2 Large (white) — 7 shapes
 ```
-[0] P[0] title line 1 | 28pt | 3.46x3.15in   [0] P[1] line 2
-[3] stat1 51pt   [6] desc1 11pt | 2.91x1.59in
-[4] stat2 51pt   [5] desc2 11pt | 2.91x1.87in
+[0] P[0] title line 1 | 28pt | MAX 13 chars/line
+[0] P[1] title line 2 | 28pt | MAX 13 chars
+[3] stat1 | 51pt | MAX 3 chars
+[4] stat2 | 51pt | MAX 3 chars
+[6] desc1 | 11pt | MAX 186 chars (6 lines)
+[5] desc2 | 11pt | MAX 217 chars (7 lines)
 ```
 
 ### Slide 13: Stats 1 Large (white) — 5 shapes — NEW
-Single hero metric with extra-large number.
 ```
-[0] P[0] title line 1 | 28pt | 3.46x4.23in   [0] P[1] line 2
-[3] stat | Manrope 80pt #277AFF | 4.14x2.20in
-[4] description | Open Sans 11pt | 4.12x1.32in
-[1] IMAGE logo   [2] FIXED footer
-```
-
-### Slide 14: Title + Chart (white) — 4 shapes — OPTIONAL
-```
-[2] title | 28pt | 3.34x3.39in
-[3] CHART — not editable
+[0] P[0] title line 1 | 28pt | MAX 13 chars/line
+[0] P[1] title line 2 | 28pt | MAX 13 chars
+[3] stat | 80pt | MAX 9 chars ("428", "100%", "#1")
+[4] description | 11pt | MAX 225 chars (5 lines)
+[1] IMAGE   [2] FIXED
 ```
 
-### Slide 15: Title + Image (white) — 3 shapes — OPTIONAL
+### Slide 14: Title + Chart (white) — OPTIONAL
 ```
-[2] title | 28pt | 3.44x3.17in
+[2] title | 28pt | MAX 65 chars (multiline)
+```
+
+### Slide 15: Title + Image (white) — OPTIONAL
+```
+[2] title | 28pt | MAX 65 chars (multiline)
 ```
 
 ### Slide 16: Timeline 4 (white) — 16 shapes
 ```
-[0] title | 28pt | 4.20x1.46in
-Below bar: [3] date [4] desc  [5] date [6] desc
-Above bar: [7] date [8] desc  [9] date [10] desc
+[0] title | 28pt | MAX 32 chars (2 lines)
+Below bar: [3][5] dates | 14pt | MAX 16 chars
+           [4][6] desc  | 11pt | MAX 63 chars (3 lines)
+Above bar: [7][9] dates | 14pt | MAX 15 chars
+           [8][10] desc | 11pt | MAX 60 chars (3 lines)
 [11-15] bar — DO NOT EDIT
 ```
 
 ### Slide 17: Timeline 5 (white) — 19 shapes
 ```
-[0] title | 28pt | 3.47x0.46in
-Below: [9] date [10] desc  [11] date [12] desc
-Above: [13] date [14] desc [15] date [16] desc [17] date [18] desc
+[0] title | 28pt | MAX 13 chars
+Below: [9][11] dates | 14pt | MAX 12 chars
+       [10][12] desc | 11pt | MAX 48 chars (3 lines)
+Above: [13][15][17] dates | 14pt | MAX 12 chars
+       [14][16][18] desc | 11pt | MAX 48 chars (3 lines)
 [3-8] bar — DO NOT EDIT
 ```
 
 ### Slide 18: Partnership Left Long (white) — 9 shapes
 ```
-[2] P[0] title line 1 | 21pt | 4.69x0.75in   [2] P[1] line 2
-[3] label [4] body | 4.69x1.07in    [5] label [6] body | 4.69x1.07in
-[0] IMAGE   [7] IMAGE logo   [8] FIXED footer
+[2] P[0] title line 1 | 21pt | MAX 30 chars
+[2] P[1] title line 2 | 21pt | MAX 30 chars
+[3] label | MAX 15 chars   [4] body | 11pt | MAX 204 chars (4 lines)
+[5] label | MAX 15 chars   [6] body | 11pt | MAX 204 chars (4 lines)
+[0] IMAGE   [7] IMAGE   [8] FIXED
 ```
 
 ### Slide 19: Partnership Right Long (white) — 9 shapes
 ```
-[2] P[0] title line 1 | 21pt | 4.69x0.75in   [2] P[1] line 2
-[3] label [4] body | 4.69x0.88in    [5] label [6] body | 4.69x0.88in
-[0] IMAGE   [7] IMAGE logo   [8] FIXED footer
+[2] P[0] title line 1 | 21pt | MAX 30 chars
+[2] P[1] title line 2 | 21pt | MAX 30 chars
+[3] label | MAX 15 chars   [4] body | 11pt | MAX 153 chars (3 lines)
+[5] label | MAX 15 chars   [6] body | 11pt | MAX 153 chars (3 lines)
+[0] IMAGE   [7] IMAGE   [8] FIXED
 ```
 
 ### Slide 20: Partners (blue) — 530 shapes
 ```
-[529] P[0] "Our" | 51pt white   [529] P[1] "partners"
+[529] P[0] | 51pt | MAX 8 chars
+[529] P[1] | 51pt | MAX 8 chars
 ```
 
 ### Slide 21: Thank You (blue) — 11 shapes
 ```
-[6] heading | 51pt white
-Contact 1: [9] name 17pt | [7] P[0] role P[1] city P[2] email 11pt
-Contact 2: [10] name | [8] P[0] role P[1] city P[2] email
-Social: [1]-[5] (keep as-is unless asked)
+[6] heading | 51pt | MAX 19 chars
+Contact 1: [9] name | 17pt | MAX 22 chars
+  [7] P[0] role  | 11pt | MAX 38 chars
+  [7] P[1] city  | MAX 38 chars
+  [7] P[2] email | MAX 38 chars
+Contact 2: [10] name | 17pt | MAX 22 chars
+  [8] P[0] role  | MAX 38 chars
+  [8] P[1] city  | MAX 38 chars
+  [8] P[2] email | MAX 38 chars
+Social [1]-[5]: keep as-is unless asked
 ```
 
 ---
@@ -342,17 +308,15 @@ def duplicate_slide(prs, source_index):
     return len(prs.slides) - 1
 ```
 
-## Slide Index Reference (21 slides)
+## Slide Index Reference
 
 ```
  0 Title            1 Agenda           2 PartnerRight      3 PartnerLeft
  4 SectionDivider   5 Card2x2          6 Card4col          7 Card3col
  8 FullImage/Map    9 Card4colIcons   10 Stats3x3         11 Stats2Large
-12 Stats1Large*    13 TitleChart**    14 TitleImage**     15 Timeline4
+12 Stats1Large     13 TitleChart**    14 TitleImage**     15 Timeline4
 16 Timeline5       17 PartnerLeftLng  18 PartnerRightLng  19 Partners
 20 ThankYou
-
-* = NEW slide (80pt single hero stat)
 ** = optional, hide after ThankYou if unused
 ```
 
@@ -360,13 +324,10 @@ def duplicate_slide(prs, source_index):
 
 ```python
 prs = Presentation("/tmp/giga_template.pptx")
-
-# 1. Plan content table (function + layout for all 21 slides)
-# 2. Edit ALL slides with replace_text()
-
-# 3. Reorder: move unused chart/image slides after ThankYou
+# 1. Plan content (respect MAX chars in template map!)
+# 2. Edit ALL slides
+# 3. Reorder chart slides after ThankYou:
 reorder_slides(prs, [0,1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18,19,20,13,14])
-
 # 4. Save
 prs.save("/tmp/output.pptx")
 ```
