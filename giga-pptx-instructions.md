@@ -8,6 +8,40 @@ pip install python-pptx --break-system-packages -q
 
 Template path: `/tmp/giga_template.pptx` (downloaded by launcher bootstrap)
 
+## Step 1: Thumbnail Analysis (run before every generation)
+
+Before planning content, visually inspect the template to understand each slide layout.
+
+```bash
+# Convert template to PDF then to slide images
+soffice --headless --convert-to pdf /tmp/giga_template.pptx --outdir /tmp/
+pdftoppm -jpeg -r 150 /tmp/giga_template.pdf /tmp/tpl-slide
+```
+
+```python
+# Create thumbnail grid for quick visual reference
+from PIL import Image, ImageDraw
+import glob
+
+slides = sorted(glob.glob("/tmp/tpl-slide-*.jpg"))
+cols = 4
+rows = (len(slides) + cols - 1) // cols
+img0 = Image.open(slides[0])
+tw, th = img0.size[0] // 2, img0.size[1] // 2
+label_h = 30
+grid = Image.new("RGB", (tw * cols, (th + label_h) * rows), "white")
+draw = ImageDraw.Draw(grid)
+for i, path in enumerate(slides):
+    col, row = i % cols, i // cols
+    img = Image.open(path).resize((tw, th))
+    x, y = col * tw, row * (th + label_h)
+    grid.paste(img, (x, y))
+    draw.text((x + 5, y + th + 5), f"Slide {i+1}", fill="black")
+grid.save("/tmp/template_thumbnails.jpg", quality=85)
+```
+
+**View the thumbnail grid** to confirm which slide is which layout, then plan your content mapping. This is especially important after template updates.
+
 ## Brand Rules
 
 Primary blue `#277AFF` | Dark `#161616`/`#000000` | Headings: Manrope | Body: Open Sans | Left-aligned | No bold/italic/bullets | 10.00 x 5.62 in
@@ -227,11 +261,11 @@ Above: [13][15][17] dates | 14pt | MAX 12 chars
 
 ### Slide 18: Partnership Left Long (white) — 9 shapes
 ```
-[2] P[0] title line 1 | 21pt | MAX 30 chars
-[2] P[1] title line 2 | 21pt | MAX 30 chars
-[3] label | MAX 15 chars   [4] body | 11pt | MAX 204 chars (4 lines)
-[5] label | MAX 15 chars   [6] body | 11pt | MAX 204 chars (4 lines)
-[0] IMAGE   [7] IMAGE   [8] FIXED
+[1] P[0] title line 1 | 21pt | MAX 30 chars
+[1] P[1] title line 2 | 21pt | MAX 30 chars
+[2] label | MAX 15 chars   [3] body | 11pt | MAX 204 chars (4 lines)
+[4] label | MAX 15 chars   [5] body | 11pt | MAX 204 chars (4 lines)
+[7] IMAGE   [6] IMAGE logo   [8] FIXED footer
 ```
 
 ### Slide 19: Partnership Right Long (white) — 9 shapes
@@ -332,9 +366,62 @@ reorder_slides(prs, [0,1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18,19,20,13,14])
 prs.save("/tmp/output.pptx")
 ```
 
-## QA
+## QA (Required — do NOT skip)
+
+### Step 1: Content QA
 
 ```bash
-python -m markitdown output.pptx
-python -m markitdown output.pptx | grep -iE "Insert text|One sentence|Lorem|Example:|Hong Kong|placeholder|06 \| Impact|Atlas"
+python -m markitdown /tmp/output.pptx
+python -m markitdown /tmp/output.pptx | grep -iE "Insert text|One sentence|Lorem|Example:|Hong Kong|placeholder|06 \| Impact|Atlas|Section title"
+```
+
+If grep returns results, fix them before proceeding.
+
+### Step 2: Visual QA
+
+Convert the generated deck to images and inspect for overflow, overlap, or layout issues.
+
+```bash
+soffice --headless --convert-to pdf /tmp/output.pptx --outdir /tmp/
+pdftoppm -jpeg -r 150 /tmp/output.pdf /tmp/qa-slide
+```
+
+```python
+# Create QA grid
+from PIL import Image, ImageDraw
+import glob
+
+slides = sorted(glob.glob("/tmp/qa-slide-*.jpg"))
+cols = 4
+rows = (len(slides) + cols - 1) // cols
+img0 = Image.open(slides[0])
+tw, th = img0.size[0] // 2, img0.size[1] // 2
+label_h = 30
+grid = Image.new("RGB", (tw * cols, (th + label_h) * rows), "white")
+draw = ImageDraw.Draw(grid)
+for i, path in enumerate(slides):
+    col, row = i % cols, i // cols
+    img = Image.open(path).resize((tw, th))
+    x, y = col * tw, row * (th + label_h)
+    grid.paste(img, (x, y))
+    draw.text((x + 5, y + th + 5), f"Slide {i+1}", fill="black")
+grid.save("/tmp/qa_grid.jpg", quality=85)
+```
+
+**View the QA grid.** Check every slide for:
+- Text overflow or cut off at box edges
+- Overlapping elements (title over subtitle, body over next label)
+- Leftover placeholder text
+- Empty slides that should have content
+- Text too small to read (content too long for the box)
+
+If any issues found: fix the text (usually shorten it), re-save, re-render, re-check.
+
+### Step 3: Deliver
+
+Only after both QA steps pass clean, copy to outputs:
+
+```python
+import shutil
+shutil.copy("/tmp/output.pptx", "/mnt/user-data/outputs/presentation.pptx")
 ```
