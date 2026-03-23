@@ -58,6 +58,15 @@ Every deck uses all 21 slides. Only Slide 14 (Chart) and Slide 15 (Image) move a
 
 **If text is too long, it WILL overflow and overlap other elements.** Always count characters before inserting. If your content exceeds the limit, SHORTEN IT. Never exceed the max shown in the template map below. When in doubt, be shorter.
 
+## ⚠️ DO NOT BREAK LINES UNNECESSARILY
+
+Many title fields have P[0] and P[1] (two lines). **P[1] is OPTIONAL.** If the title fits on one line, put it ALL in P[0] and set P[1] to "". Only use P[1] when the text genuinely needs two lines to stay within the MAX character limit.
+
+**WRONG:** P[0]="What is" P[1]="Giga?" → forces an ugly line break
+**CORRECT:** P[0]="What is Giga?" P[1]="" → clean single line
+
+Same for subtitles and body text: never insert "\n" or split text across paragraphs unless the box is too narrow for the full text on one line. Check the MAX chars per line in the template map. If your text fits within that limit, keep it on one line.
+
 ---
 
 ## Content-Function Matching Engine
